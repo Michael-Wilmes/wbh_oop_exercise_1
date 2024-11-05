@@ -1,11 +1,11 @@
 import sys
 import os
 import tkinter as tk
+import threading
 from tkinter import scrolledtext
 
 NEW_LINE = '\n'
 SPACE = ' '
-
 LAST_ENTRY = chr(9492)
 LINE = chr(9472)
 VERTICAL_LINE = chr(9474)
@@ -39,13 +39,18 @@ class DirectoryTree:
         else:
             path = path 
 
-        nfiles, ndirectories = self.print_directory(path)
+        #start in a thread, to avoid blocking the UI
+        threading.Thread(target=self.scan_and_display, args=(path,)).start()
+        self.show_window()
 
-        if (nfiles == 0 and ndirectories == 0):
+
+    def scan_and_display(self, path):
+        nfiles, ndirectories = self.print_directory(path)
+        if nfiles == 0 and ndirectories == 0:
             self._text_widget.insert(tk.END, "No files or directories found in " + os.path.abspath(path) + NEW_LINE)
             return
-        
-        mes = NEW_LINE*3 + str(nfiles) + " file, in " + str(ndirectories) + " directories  " + NEW_LINE
+
+        mes = NEW_LINE * 3 + str(nfiles) + " file, in " + str(ndirectories) + " directories  " + NEW_LINE
         self._text_widget.insert(tk.END, mes)
         self._text_widget.insert(tk.END, 'Starting directory: ' + os.path.abspath(path) + NEW_LINE)
 
@@ -97,7 +102,8 @@ class DirectoryTree:
                     line_pattern = CROSS + LINE
 
                 self._text_widget.insert(tk.END, prefix_pattern +  line_pattern + SPACE +  entry.name + NEW_LINE)
-
+                #self.root.update_idletasks()  # Update the GUI
+                
                 if entry.is_dir():
                     ndirectories += 1
                     (sub_nfiles, sub_ndirectories) = self.print_directory(entry, prefix_pattern, intendation_level + 1, is_last_directory)      
@@ -137,9 +143,17 @@ if __name__ == "__main__":
 
 #quellen: 
 #https://www.pythontutorial.net/
+#https://www.python.org/doc/
+#https://www.youtube.com/@patloeber
+#Python3 , das Umfassende Handbuch, Galileo Computing
+
 
  #todo: (gilt für alle Aufgaben)
  # Quellenangabe
+ # Java ist auch eine Insel, Galileo Computing
+ # https://www.youtube.com/@willtollefson
+ # https://docs.oracle.com/en/java/
+ #
  # auf probleme eingehen
  #  - Java Klammer Aufgabe ("zählt nur Klammer Paare") 
  #  - Java Koch Kurve: Darstellung bei Level > 5, Berechnung der Linien  bei Änderung der Punkte-Reihenfolge

@@ -106,11 +106,12 @@ class CaesarCypher:
             chi_square += (observed_count - expected_count) ** 2 / expected_count if expected_count != 0 else 0
         return chi_square
 
+    #try to encode the decoded text using chi-square algorithm
     def crack_caesar(self, example_text, encrypted_text):
 
         example_histogram = self.string_histogram(example_text)
         example_length = len(example_text)
-        #put frequencies in a dictionary
+        #put expcted frequencies in a dictionary
         expected_frequencies = {char: count / example_length for char, count in example_histogram.items()}
 
         closest_shift = 0
