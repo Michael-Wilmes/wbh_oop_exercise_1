@@ -12,7 +12,6 @@ VERTICAL_LINE = chr(9474)
 CROSS = chr(9500)
 
 class DirectoryTree:
-
     
     def __init__(self):
 
@@ -24,6 +23,7 @@ class DirectoryTree:
         self._text_widget.tag_config("no_permission", background="white", foreground="red")
 
     def show_window(self):
+        
         self._text_widget.pack(expand = 1, fill = 'both')
         self.root.mainloop()
 
@@ -40,15 +40,20 @@ class DirectoryTree:
             path = path 
 
         nfiles, ndirectories = self.print_directory(path)
-        mes = NEW_LINE*3 + str(nfiles) + " Dateien, in " + str(ndirectories) + " Verzeichnissen"
-        self._text_widget.insert(tk.END, mes + NEW_LINE)
-        self._text_widget.insert(tk.END, 'Startverzeichnis: ' + os.path.abspath(path) + NEW_LINE)
+
+        if (nfiles == 0 and ndirectories == 0):
+            self._text_widget.insert(tk.END, "No files or directories found in " + os.path.abspath(path) + NEW_LINE)
+            return
+        
+        mes = NEW_LINE*3 + str(nfiles) + " file, in " + str(ndirectories) + " directories  " + NEW_LINE
+        self._text_widget.insert(tk.END, mes)
+        self._text_widget.insert(tk.END, 'Starting directory: ' + os.path.abspath(path) + NEW_LINE)
 
 
     def print_directory(self, path, prefix_pattern = "", intendation_level = 0, is_last_directory = False):
 
         if (os.path.exists(path) == False):
-            self._text_widget.insert(tk.END, "Fehler:  Pfad '" + path.name +  "' konnnte nicht gefunden werden! " + NEW_LINE)
+            self._text_widget.insert(tk.END, "Error: Path '" + os.path.abspath(path) +  "' can not be found! " + NEW_LINE)
             return (0,0)
 
         if intendation_level == 0:
@@ -64,11 +69,13 @@ class DirectoryTree:
             self._text_widget.insert(tk.END, prefix_pattern + LAST_ENTRY + " NO PERMISSION " + path.name + NEW_LINE, "no_permission")
             return (0,0)
 
+        #get list of files and directories
         dir_list = self.try_scan_dir(path, prefix_pattern)
 
         if dir_list is None:
             return (0,0)
-           
+
+        #sort the list by name   
         sorted_list = sorted(dir_list, key=lambda f: f.name.lower(), reverse=False)
 
         nfiles = 0
@@ -79,8 +86,10 @@ class DirectoryTree:
 
             if entry.is_dir() or entry.is_file():             
                 
+                #create line pattern for optical representation
                 line_pattern = ''
 
+                #special case for last file or directory
                 if entry == sorted_list[-1]:
                     is_last_directory = True
                     line_pattern =  LAST_ENTRY + LINE
@@ -99,7 +108,8 @@ class DirectoryTree:
 
         dir_list.close()
         return (nfiles, ndirectories)
-        
+
+    #try scan directory and catch exceptions    
     def try_scan_dir(self, path, prefix_pattern):
         dir_list = None
         try:
@@ -128,14 +138,8 @@ if __name__ == "__main__":
 #quellen: 
 #https://www.pythontutorial.net/
 
-#todo: try to highlight NO PERMISSION
-
  #todo: (gilt für alle Aufgaben)
- # check: String concatenation
- # Kommentieren, was habe ich gemacht
  # Quellenangabe
- # Testen
- # Dokumentieren
  # auf probleme eingehen
  #  - Java Klammer Aufgabe ("zählt nur Klammer Paare") 
  #  - Java Koch Kurve: Darstellung bei Level > 5, Berechnung der Linien  bei Änderung der Punkte-Reihenfolge
