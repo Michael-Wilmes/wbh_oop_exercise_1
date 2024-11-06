@@ -17,13 +17,15 @@ def main(args):
 
     caesar_cypher = CaesarCypher()
     encoded_text = caesar_cypher.encode_text(text, key)
+    print('-'*80)
     print(f"Encoded Text: {encoded_text}")
-    print(''*20)    
-    print(f"Histogramm {str(caesar_cypher.string_histogram(text))}") #+ str(caesar_cypher.string_histogram(text)))
-    print(''*20)
-    print(f"Frequency {str(caesar_cypher.frequencies(text))}")
-    print(''*20)
-    print(''*20)
+    print('\n')
+   # print(''*20)    
+    print(f"Histogram: {str(caesar_cypher.string_histogram(text))}") #+ str(caesar_cypher.string_histogram(text)))
+    print('\n')
+    print(f"Frequency: {str(caesar_cypher.frequencies(text))}")
+    print('\n')
+    print(f"Result of crack_caesar:")
     decoded_text = caesar_cypher.crack_caesar("I know that virtue to be in you, Brutus, As well as I do know your outward favour. Well, honour" +
     "is the subject of my story. I cannot tell what you and other men Think of this life; but," +
     "for my single self, I had as lief not be as live to be In awe of such a thing as I myself. I was " +
@@ -45,7 +47,7 @@ def main(args):
     "should So get the start of the majestic world And bear the palm alone.", 
     "Reu jf zk zj. Wfi kyzj kzdv Z nzcc cvrmv pfl: Kf-dfiifn, zw pfl gcvrjv kf jgvrb nzky dv, Z nzcc tfdv yfdv kf pfl; fi, zw pfl nzcc, Tfdv yfdv kf dv, reu Z nzcc nrzk wfi pfl.")
     print(decoded_text)
-
+    print('-'*80)
 
 class CaesarCypher:
 
@@ -65,6 +67,17 @@ class CaesarCypher:
         
         return chr((((char_ord + key)-offset) % CaesarCypher.LENGH_ALPHABET) + offset)
          
+    def __calculate_chi_square(self, observed, expected):
+
+        chi_square = 0
+        for charInt in range(CaesarCypher.CHR_OFF_SET_LOWER, CaesarCypher.CHR_OFF_SET_LOWER + CaesarCypher.LENGH_ALPHABET):
+            char = chr(charInt)
+            #get the counted values for each character
+            observed_count = observed.get(char, 0)
+            expected_count = expected.get(char, 0)
+            #avoid division by zero
+            chi_square += (observed_count - expected_count) ** 2 / expected_count if expected_count != 0 else 0
+        return chi_square
 
     def encode_text(self, text, key) :
         
@@ -94,17 +107,7 @@ class CaesarCypher:
 
         return dict(sorted(hist.items()))
     
-    def calculate_chi_square(self, observed, expected):
 
-        chi_square = 0
-        for charInt in range(CaesarCypher.CHR_OFF_SET_LOWER, CaesarCypher.CHR_OFF_SET_LOWER + CaesarCypher.LENGH_ALPHABET):
-            char = chr(charInt)
-            #get the counted values for each character
-            observed_count = observed.get(char, 0)
-            expected_count = expected.get(char, 0)
-            #avoid division by zero
-            chi_square += (observed_count - expected_count) ** 2 / expected_count if expected_count != 0 else 0
-        return chi_square
 
     #try to encode the decoded text using chi-square algorithm
     def crack_caesar(self, example_text, encrypted_text):
@@ -123,7 +126,7 @@ class CaesarCypher:
             shifted_text = self.decode_text(encrypted_text, shift)
             evaluated_histogram = self.string_histogram(shifted_text)
 
-            calculated_chi_square = self.calculate_chi_square(evaluated_histogram, expected_frequencies)
+            calculated_chi_square = self.__calculate_chi_square(evaluated_histogram, expected_frequencies)
 
             if calculated_chi_square < minimum_chi_square:
                 minimum_chi_square = calculated_chi_square

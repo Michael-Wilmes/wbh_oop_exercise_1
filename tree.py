@@ -40,22 +40,22 @@ class DirectoryTree:
             path = path 
 
         #start in a thread, to avoid blocking the UI
-        threading.Thread(target=self.scan_and_display, args=(path,)).start()
+        threading.Thread(target=self.__scan_and_display, args=(path,)).start()
         self.show_window()
 
 
-    def scan_and_display(self, path):
-        nfiles, ndirectories = self.print_directory(path)
+    def __scan_and_display(self, path):
+        nfiles, ndirectories = self.__print_directory(path)
         if nfiles == 0 and ndirectories == 0:
             self._text_widget.insert(tk.END, "No files or directories found in " + os.path.abspath(path) + NEW_LINE)
             return
 
-        mes = NEW_LINE * 3 + str(nfiles) + " file, in " + str(ndirectories) + " directories  " + NEW_LINE
+        mes = NEW_LINE * 3 + str(nfiles) + " file(s), in " + str(ndirectories) + " directories  " + NEW_LINE
         self._text_widget.insert(tk.END, mes)
         self._text_widget.insert(tk.END, 'Starting directory: ' + os.path.abspath(path) + NEW_LINE)
 
 
-    def print_directory(self, path, prefix_pattern = "", intendation_level = 0, is_last_directory = False):
+    def __print_directory(self, path, prefix_pattern = "", intendation_level = 0, is_last_directory = False):
 
         if (os.path.exists(path) == False):
             self._text_widget.insert(tk.END, "Error: Path '" + os.path.abspath(path) +  "' can not be found! " + NEW_LINE)
@@ -75,7 +75,7 @@ class DirectoryTree:
             return (0,0)
 
         #get list of files and directories
-        dir_list = self.try_scan_dir(path, prefix_pattern)
+        dir_list = self.__try_scan_dir(path, prefix_pattern)
 
         if dir_list is None:
             return (0,0)
@@ -106,7 +106,7 @@ class DirectoryTree:
                 
                 if entry.is_dir():
                     ndirectories += 1
-                    (sub_nfiles, sub_ndirectories) = self.print_directory(entry, prefix_pattern, intendation_level + 1, is_last_directory)      
+                    (sub_nfiles, sub_ndirectories) = self.__print_directory(entry, prefix_pattern, intendation_level + 1, is_last_directory)      
                     nfiles += sub_nfiles
                     ndirectories += sub_ndirectories
                 else:
@@ -116,7 +116,7 @@ class DirectoryTree:
         return (nfiles, ndirectories)
 
     #try scan directory and catch exceptions    
-    def try_scan_dir(self, path, prefix_pattern):
+    def __try_scan_dir(self, path, prefix_pattern):
         dir_list = None
         try:
             dir_list = os.scandir(path) 
